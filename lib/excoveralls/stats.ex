@@ -90,9 +90,9 @@ defmodule ExCoveralls.Stats do
   @doc """
   Append the name of the sub app to the source info stats.
   """
-  def append_sub_app_name(stats, sub_app_name, apps_path) do
+  def append_sub_app_name(stats, sub_app_name, _apps_path) do
     Enum.map(stats, fn %{name: name} = stat ->
-      %{stat | name: "#{apps_path}/#{sub_app_name}/#{name}"}
+      %{stat | name: "#{sub_app_name}/#{name}"}
     end)
   end
 

@@ -14,6 +14,12 @@ defmodule Mix.Tasks.Coveralls do
     end
   end
 
+  defmodule UmbrellaRunner do
+    def run(args) do
+      Mix.Tasks.Test.run(args)
+    end
+  end
+
   def run(args) do
     {options, _, _} = OptionParser.parse(args, switches: [help: :boolean], aliases: [h: :help])
 
@@ -41,8 +47,7 @@ defmodule Mix.Tasks.Coveralls do
 
     all_options =
       if all_options[:umbrella] do
-        sub_apps = ExCoveralls.SubApps.parse(Mix.Dep.Umbrella.loaded)
-        all_options ++ [sub_apps: sub_apps, apps_path: Mix.Project.config[:apps_path]]
+        all_options ++ [sub_apps: [], apps_path: Mix.Project.config[:apps_path]]
       else
         all_options
       end
@@ -51,7 +56,11 @@ defmodule Mix.Tasks.Coveralls do
     ExCoveralls.ConfServer.set(all_options ++ [args: args])
     ExCoveralls.StatServer.start
 
-    Runner.run(test_task, ["--cover"] ++ args)
+    if all_options[:umbrella] do
+      UmbrellaRunner.run(["--cover"] ++ args)
+    else
+      Runner.run(test_task, ["--cover"] ++ args)
+    end
 
     if all_options[:umbrella] do
       analyze_sub_apps(all_options)
@@ -233,4 +242,5 @@ defmodule Mix.Tasks.Coveralls do
       end
     end
   end
+
 end
